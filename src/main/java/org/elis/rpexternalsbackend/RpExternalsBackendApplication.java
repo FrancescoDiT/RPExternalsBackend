@@ -9,5 +9,4 @@ public class RpExternalsBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(RpExternalsBackendApplication.class, args);
     }
-
 }

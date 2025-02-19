@@ -11,7 +11,7 @@ public class Allergen {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
-    private long id;
+    private Long id;
     @Column(nullable = false)
     private String name;
 

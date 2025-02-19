@@ -1,24 +1,28 @@
 package org.elis.rpexternalsbackend.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
-@Data
-@Entity(name = "user")
+@Getter
+@Setter
+@Builder
+@Entity(name = "userinfo")
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
     @Column(nullable = false)
     private String name;
     @Column(nullable = false)
     private String surname;
     @Column(nullable = false)
-    private String email;
-    @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
+    private String email;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserType userType;
