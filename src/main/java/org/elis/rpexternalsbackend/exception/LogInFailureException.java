@@ -10,6 +10,6 @@ public class LogInFailureException extends RuntimeException{
     private Map<String,String> errors;
 
     public LogInFailureException(Map<String,String> errors) {
-        this.errors = errors;
+        super(errors.toString());
     }
 }
