@@ -1,21 +1,30 @@
 package org.elis.rpexternalsbackend.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "allergen")
 public class Allergen {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
     private Long id;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
+    @Column(nullable = false)
+    private String imageLink;
+    @Column(nullable = false)
+    private String description;
 
-    @ManyToMany(cascade = CascadeType.ALL,  fetch = FetchType.LAZY)
+    //
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name ="allergen_ingredient", joinColumns = @JoinColumn(name = "allergen_id"), inverseJoinColumns = @JoinColumn(name =  "ingredient_id"))
     private List<Ingredient> ingredients;
 }

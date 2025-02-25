@@ -2,15 +2,16 @@ package org.elis.rpexternalsbackend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.elis.rpexternalsbackend.model.value.UserType;
 
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
-@Builder
-@Entity(name = "userinfo")
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity(name = "userinfo")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,10 +28,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserType userType;
 
-    //TODO change cascadeType
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,  fetch = FetchType.LAZY)
     private List<Ticket> tickets;
-    //TODO change cascadeType
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,  fetch = FetchType.LAZY)
     private List<Reservation> reservations;
 }

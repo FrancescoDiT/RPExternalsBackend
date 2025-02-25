@@ -1,20 +1,25 @@
 package org.elis.rpexternalsbackend.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "menu")
 public class Menu {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(nullable = false)
-    private LocalDate date;
+    private LocalDateTime date;
 
-    @ManyToMany(mappedBy = "menus")
+    //We will usually use manual query
+    @ManyToMany(mappedBy = "menus", fetch = FetchType.LAZY)
     private List<Dish> dishes;
 }

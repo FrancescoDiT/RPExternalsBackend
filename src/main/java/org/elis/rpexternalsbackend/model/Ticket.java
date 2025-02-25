@@ -1,9 +1,14 @@
 package org.elis.rpexternalsbackend.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import org.elis.rpexternalsbackend.model.value.TicketType;
 
-@Data
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "ticket")
 public class Ticket {
     @Id

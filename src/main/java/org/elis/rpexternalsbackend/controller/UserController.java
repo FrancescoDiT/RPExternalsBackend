@@ -3,7 +3,6 @@ package org.elis.rpexternalsbackend.controller;
 import jakarta.validation.Valid;
 import org.elis.rpexternalsbackend.dto.request.CreateUserRequestDTO;
 import org.elis.rpexternalsbackend.dto.request.LoginUserRequestDTO;
-import org.elis.rpexternalsbackend.dto.response.ViewUsersDTO;
 import org.elis.rpexternalsbackend.model.User;
 import org.elis.rpexternalsbackend.service.definition.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +29,14 @@ public class UserController {
 
     @PostMapping("/all/login")
     public ResponseEntity<Void> logIn(@RequestBody @Valid LoginUserRequestDTO loginUserRequestDTO){
-        User logInUser = userService.login(loginUserRequestDTO);
-        if(logInUser != null) return ResponseEntity.ok().build();
-        else return ResponseEntity.badRequest().build();
+        User loggedInUser = userService.login(loginUserRequestDTO);
+        if(loggedInUser != null) return ResponseEntity.ok().build();
+        else return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/all/view")
-    public ResponseEntity<List<ViewUsersDTO>> getAllUsers() {
-        List<ViewUsersDTO> users = userService.viewUsers();
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.viewUsers();
         return ResponseEntity.ok(users);
     }
 

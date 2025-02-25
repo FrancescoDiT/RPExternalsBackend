@@ -1,11 +1,15 @@
 package org.elis.rpexternalsbackend.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "reservation")
 public class Reservation {
     @Id

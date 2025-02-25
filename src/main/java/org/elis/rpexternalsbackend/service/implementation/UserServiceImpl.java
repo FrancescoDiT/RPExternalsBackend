@@ -2,11 +2,10 @@ package org.elis.rpexternalsbackend.service.implementation;
 
 import org.elis.rpexternalsbackend.dto.request.CreateUserRequestDTO;
 import org.elis.rpexternalsbackend.dto.request.LoginUserRequestDTO;
-import org.elis.rpexternalsbackend.dto.response.ViewUsersDTO;
 import org.elis.rpexternalsbackend.exception.LogInFailureException;
-import org.elis.rpexternalsbackend.exception.SignInFailureException;
+import org.elis.rpexternalsbackend.exception.SignUpFailureException;
 import org.elis.rpexternalsbackend.model.User;
-import org.elis.rpexternalsbackend.model.UserType;
+import org.elis.rpexternalsbackend.model.value.UserType;
 import org.elis.rpexternalsbackend.repository.UserRepository;
 import org.elis.rpexternalsbackend.service.definition.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,38 +21,38 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public User signUp(CreateUserRequestDTO userRequestDTO) {
+    public User signUp(CreateUserRequestDTO createUserRequestDTO) {
 
         Map<String, String> errors = new TreeMap<>();
 
-        //check for email already exists in db
-        assert userRequestDTO.getEmail() != null;
-        if (isEmailPresent(userRequestDTO.getEmail())) {
-            errors.put("checkEmailEquals", "account with this email already exists");
+        //Check for email already exists in db
+        if (isEmailPresent(createUserRequestDTO.getEmail())) {
+            errors.put("EmailAlreadyOnDb", "Account with this email already exists");
         }
 
-        //check for passwords to be equals
-        assert userRequestDTO.getPassword() != null;
-        if (!userRequestDTO.getPassword().equals(userRequestDTO.getRepeatPassword())){
-            errors.put("checkPassword", "passwords do not match");
+        //Check for passwords to be equals
+        if (!createUserRequestDTO.getPassword().equals(createUserRequestDTO.getRepeatPassword())){
+            errors.put("CheckPassword", "Passwords do not match");
         }
 
         if(!errors.isEmpty()){
-            throw new SignInFailureException(errors);
+            throw new SignUpFailureException(errors);
         }
 
-        User user = new User();
-        user.setEmail(userRequestDTO.getEmail().trim());
-        user.setPassword(userRequestDTO.getPassword().trim());
-        user.setName(userRequestDTO.getName().trim());
-        user.setSurname(userRequestDTO.getSurname().trim());
-        user.setUserType(UserType.EXTERNAL);
+        User user = User.builder()
+                        .name(createUserRequestDTO.getName().trim())
+                        .surname(createUserRequestDTO.getSurname().trim())
+                        .email(createUserRequestDTO.getEmail().trim())
+                        .password(createUserRequestDTO.getPassword().trim())
+                        .userType(UserType.EXTERNAL)
+                        .build();
         return userRepository.save(user);
     }
 
-    public boolean isEmailPresent(String email) {
+    @Override
+    public Boolean isEmailPresent(String email) {
         User user = userRepository.findByEmail(email);
-        return user != null;  // Se un utente con quella email esiste, ritorna true
+        return user != null;
     }
 
     @Override
@@ -61,28 +60,26 @@ public class UserServiceImpl implements UserService {
 
         Map<String, String> errors = new TreeMap<>();
 
-        //check for email already exists in db
-        assert loginUserRequestDTO.getEmail() != null;
-        if (!loginUserRequestDTO.getEmail().equals(userRepository.findByEmail(loginUserRequestDTO.getEmail()).getEmail())) {
-            errors.put("checkEmailEquals", "account doesn't exists");
+        User savedUser = userRepository.findByEmail(loginUserRequestDTO.getEmail());
+
+        //Check for email already exists in db
+        if (!loginUserRequestDTO.getEmail().equals(savedUser.getEmail())) {
+            errors.put("AccountNotFound", "Account doesn't exists");
         }
 
-        assert loginUserRequestDTO.getPassword() != null;
-        if(!loginUserRequestDTO.getPassword().equals(userRepository.findByEmail(loginUserRequestDTO.getEmail()).getPassword())){
-            errors.put("checkPassword", "wrong credentials");
+        if(!loginUserRequestDTO.getPassword().equals(savedUser.getPassword())) {
+            errors.put("CheckPassword", "Wrong credentials");
         }
 
-        if(!errors.isEmpty()){
+        if(!errors.isEmpty()) {
             throw new LogInFailureException(errors);
         }
 
-        return null;
+        return savedUser;
     }
 
     @Override
-    public List<ViewUsersDTO> viewUsers() {
-        return userRepository.findAll().stream()
-                .map(user -> new ViewUsersDTO(user.getName(), user.getSurname(), user.getEmail(), user.getPassword(), user.getUserType())) // Converte User in ViewUsersDTO
-                .toList(); // Raccoglie la lista risultante
+    public List<User> viewUsers() {
+        return userRepository.findAll();
     }
 }
