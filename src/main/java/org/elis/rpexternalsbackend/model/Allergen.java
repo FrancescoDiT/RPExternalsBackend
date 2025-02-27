@@ -23,7 +23,6 @@ public class Allergen {
     @Column(nullable = false)
     private String description;
 
-    //
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name ="allergen_ingredient", joinColumns = @JoinColumn(name = "allergen_id"), inverseJoinColumns = @JoinColumn(name =  "ingredient_id"))
     private List<Ingredient> ingredients;

@@ -16,5 +16,4 @@ public interface AllergenService {
     List<Allergen> readAllAllergen();
     void updateAllergen();
     void deleteAllergen();
-    Boolean isAllergenPresent(String allergenName);
 }

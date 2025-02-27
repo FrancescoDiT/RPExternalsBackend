@@ -1,13 +1,16 @@
 package org.elis.rpexternalsbackend.service.implementation;
 
+import lombok.RequiredArgsConstructor;
 import org.elis.rpexternalsbackend.dto.request.CreateIngredientRequestDTO;
 import org.elis.rpexternalsbackend.exception.DatabaseInconsistencyException;
+import org.elis.rpexternalsbackend.mapper.CreateIngredientRequestMapper;
 import org.elis.rpexternalsbackend.model.Allergen;
 import org.elis.rpexternalsbackend.model.Ingredient;
 import org.elis.rpexternalsbackend.repository.AllergenRepository;
 import org.elis.rpexternalsbackend.repository.IngredientRepository;
 import org.elis.rpexternalsbackend.service.definition.IngredientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,12 +19,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @Service
+@RequiredArgsConstructor
 public class IngredientServiceImpl implements IngredientService{
 
-    @Autowired
-    IngredientRepository ingredientRepository;
-    @Autowired
-    AllergenRepository allergenRepository;
+    private final IngredientRepository ingredientRepository;
+    private final AllergenRepository allergenRepository;
 
     @Override
     public Boolean isIngredientPresent(String ingredientName) {
@@ -55,38 +57,28 @@ public class IngredientServiceImpl implements IngredientService{
 
     @Override
     public Ingredient createIngredient(CreateIngredientRequestDTO createIngredientRequestDTO) {
-
-        Map<String, String> errors = new TreeMap<>();
         List<Long> allergenIds = createIngredientRequestDTO.getAllergenIds();
         List<Allergen> allergens = allergenRepository.findAllById(allergenIds);
 
-        if(isIngredientPresent(createIngredientRequestDTO.getName())){
-            errors.put("IngredientAlreadyOnDb", "Ingredient already exists");
+        if(allergenIds.size() != allergens.size()) {
+            throw new DataIntegrityViolationException("One or more Allergens were not found");
         }
 
-        Ingredient ingredient = checkIngredient(errors, createIngredientRequestDTO, allergens, allergenIds);
-
+        Ingredient ingredient = CreateIngredientRequestMapper.INSTANCE.convert(createIngredientRequestDTO);
         return ingredientRepository.save(ingredient);
     }
 
     @Override
-    public List<Ingredient> createIngredients(List<CreateIngredientRequestDTO> createIngredientRequestDTOList) {
-
-        Map<String, String> errors = new TreeMap<>();
-        List<Ingredient> ingredients = new ArrayList<>();
-
-        createIngredientRequestDTOList.forEach(createIngredientRequestDTO -> {
-
+    public List<Ingredient> createIngredients(List<CreateIngredientRequestDTO> createIngredientRequestDTOS) {
+        createIngredientRequestDTOS.forEach(createIngredientRequestDTO -> {
             List<Long> allergenIds = createIngredientRequestDTO.getAllergenIds();
             List<Allergen> allergens = allergenRepository.findAllById(allergenIds);
 
-            if(isIngredientPresent(createIngredientRequestDTO.getName())){
-                errors.put("IngredientAlreadyOnDb", "Ingredient already exists");
+            if(allergenIds.size() != allergens.size()) {
+                throw new DataIntegrityViolationException("One or more Allergens were not found for Ingredient: " + createIngredientRequestDTO.getName());
             }
-
-            Ingredient ingredient = checkIngredient(errors, createIngredientRequestDTO, allergens, allergenIds);
-            ingredients.add(ingredient);
         });
+        List<Ingredient> ingredients = createIngredientRequestDTOS.stream().map(CreateIngredientRequestMapper.INSTANCE::convert).toList();
         return ingredientRepository.saveAll(ingredients);
     }
 

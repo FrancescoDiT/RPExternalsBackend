@@ -27,8 +27,8 @@ public class AllergenController {
     }
 
     @PostMapping("/all/allergens/createList")
-    public ResponseEntity<Void> createAllergenList(@RequestBody @Valid List<CreateAllergenRequestDTO> createAllergenRequestDTOList){
-        List<Allergen> allergens = allergenService.createAllergenList(createAllergenRequestDTOList);
+    public ResponseEntity<Void> createAllergenList(@RequestBody @Valid List<CreateAllergenRequestDTO> createAllergenRequestDTOS){
+        List<Allergen> allergens = allergenService.createAllergenList(createAllergenRequestDTOS);
         if(!allergens.isEmpty()) return ResponseEntity.ok().build();
         else return ResponseEntity.badRequest().build();
     }
