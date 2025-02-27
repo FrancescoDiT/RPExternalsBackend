@@ -31,30 +31,6 @@ public class IngredientServiceImpl implements IngredientService{
         return ingredient != null;
     }
 
-    public static Ingredient checkIngredient(Map<String, String> errors, CreateIngredientRequestDTO createIngredientRequestDTO, List<Allergen> allergens, List<Long> allergenIds){
-
-        if(allergens.isEmpty()){
-            errors.put("NoAllergensFound", "No allergens found");
-        }
-
-        if(allergens.size() != allergenIds.size()){
-            errors.put("AllergenNotFound", "Allergen not found");
-        }
-
-        if(!errors.isEmpty()){
-            throw new DatabaseInconsistencyException(errors);
-        }
-
-        return Ingredient.builder()
-                .name(createIngredientRequestDTO.getName())
-                .imageLink(createIngredientRequestDTO.getImageLink())
-                .description(createIngredientRequestDTO.getDescription())
-                .frozen(createIngredientRequestDTO.getFrozen())
-                .allergens(allergens)
-                .build();
-
-    }
-
     @Override
     public Ingredient createIngredient(CreateIngredientRequestDTO createIngredientRequestDTO) {
         List<Long> allergenIds = createIngredientRequestDTO.getAllergenIds();
