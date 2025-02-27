@@ -49,11 +49,15 @@ public class MenuServiceImpl implements MenuService {
         }
 
         LocalDateTime date = LocalDateTime.parse(createMenuRequestDTO.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-        List<Dish> dishes = dishRepository.findAllById(createMenuRequestDTO.getDishIds());
+        List<Long> dishIds = createMenuRequestDTO.getDishIds();
+        List<Dish> dishes = dishRepository.findAllById(dishIds);
 
         if(dishes.isEmpty()){
             errors.put("NoDishesFound", "No dishes found");
+        }
+
+        if(dishes.size() != dishIds.size()){
+            errors.put("DishNotFound", "Dish not found");
         }
 
         if(!errors.isEmpty()){

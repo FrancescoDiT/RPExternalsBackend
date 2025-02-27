@@ -1,6 +1,7 @@
 package org.elis.rpexternalsbackend.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,7 +16,7 @@ public class CreateIngredientRequestDTO {
     private String imageLink;
     @NotBlank(message = "Ingredient description cannot be null")
     private String description;
-    @NotBlank(message = "Ingredient type cannot be null")
+    @NotNull(message = "Ingredient type cannot be null")
     private Boolean frozen;
     private List<Long> allergenIds;
 }

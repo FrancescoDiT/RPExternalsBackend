@@ -27,6 +27,6 @@ public class Ingredient {
     @ManyToMany(mappedBy = "ingredients")
     private List<Allergen> allergens;
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name ="ingrendient_dish", joinColumns = @JoinColumn(name = "ingredient_id"), inverseJoinColumns = @JoinColumn(name =  "dish_id"))
+    @JoinTable(name ="ingredient_dish", joinColumns = @JoinColumn(name = "ingredient_id"), inverseJoinColumns = @JoinColumn(name =  "dish_id"))
     private List<Dish> dishes;
 }

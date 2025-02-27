@@ -10,6 +10,7 @@ import org.elis.rpexternalsbackend.service.definition.IngredientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -28,38 +29,85 @@ public class IngredientServiceImpl implements IngredientService{
         return ingredient != null;
     }
 
-    @Override
-    public Ingredient createIngredient(CreateIngredientRequestDTO createIngredientRequestDTO) {
-
-        Map<String, String> errors = new TreeMap<>();
-
-        if(isIngredientPresent(createIngredientRequestDTO.getName())){
-            errors.put("IngredientAlreadyOnDb", "Ingredient already exists");
-        }
-
-        List<Allergen> allergens = allergenRepository.findAllById(createIngredientRequestDTO.getAllergenIds());
+    public static Ingredient checkIngredient(Map<String, String> errors, CreateIngredientRequestDTO createIngredientRequestDTO, List<Allergen> allergens, List<Long> allergenIds){
 
         if(allergens.isEmpty()){
             errors.put("NoAllergensFound", "No allergens found");
+        }
+
+        if(allergens.size() != allergenIds.size()){
+            errors.put("AllergenNotFound", "Allergen not found");
         }
 
         if(!errors.isEmpty()){
             throw new DatabaseInconsistencyException(errors);
         }
 
-        Ingredient ingredient = Ingredient.builder()
-                                          .name(createIngredientRequestDTO.getName())
-                                          .imageLink(createIngredientRequestDTO.getImageLink())
-                                          .description(createIngredientRequestDTO.getDescription())
-                                          .frozen(createIngredientRequestDTO.getFrozen())
-                                          .allergens(allergens)
-                                          .build();
+        return Ingredient.builder()
+                .name(createIngredientRequestDTO.getName())
+                .imageLink(createIngredientRequestDTO.getImageLink())
+                .description(createIngredientRequestDTO.getDescription())
+                .frozen(createIngredientRequestDTO.getFrozen())
+                .allergens(allergens)
+                .build();
+
+    }
+
+    @Override
+    public Ingredient createIngredient(CreateIngredientRequestDTO createIngredientRequestDTO) {
+
+        Map<String, String> errors = new TreeMap<>();
+        List<Long> allergenIds = createIngredientRequestDTO.getAllergenIds();
+        List<Allergen> allergens = allergenRepository.findAllById(allergenIds);
+
+        if(isIngredientPresent(createIngredientRequestDTO.getName())){
+            errors.put("IngredientAlreadyOnDb", "Ingredient already exists");
+        }
+
+        Ingredient ingredient = checkIngredient(errors, createIngredientRequestDTO, allergens, allergenIds);
+
         return ingredientRepository.save(ingredient);
+    }
+
+    @Override
+    public List<Ingredient> createIngredients(List<CreateIngredientRequestDTO> createIngredientRequestDTOList) {
+
+        Map<String, String> errors = new TreeMap<>();
+        List<Ingredient> ingredients = new ArrayList<>();
+
+        createIngredientRequestDTOList.forEach(createIngredientRequestDTO -> {
+
+            List<Long> allergenIds = createIngredientRequestDTO.getAllergenIds();
+            List<Allergen> allergens = allergenRepository.findAllById(allergenIds);
+
+            if(isIngredientPresent(createIngredientRequestDTO.getName())){
+                errors.put("IngredientAlreadyOnDb", "Ingredient already exists");
+            }
+
+            Ingredient ingredient = checkIngredient(errors, createIngredientRequestDTO, allergens, allergenIds);
+            ingredients.add(ingredient);
+        });
+        return ingredientRepository.saveAll(ingredients);
     }
 
     @Override
     public List<Ingredient> readAllIngredients() {
         return ingredientRepository.findAll();
+    }
+
+    @Override
+    public List<Ingredient> readAllIngredientsWithAllergens() {
+        return ingredientRepository.findAllIngredientsWithAllergens();
+    }
+
+    @Override
+    public List<Ingredient> readAllIngredientsWithDishes() {
+        return ingredientRepository.findAllIngredientsWithDishes();
+    }
+
+    @Override
+    public List<Ingredient> readAllIngredientsWithAllergensAndDishes() {
+        return ingredientRepository.findAllIngredientsWithAllergensAndDishes();
     }
 
     @Override

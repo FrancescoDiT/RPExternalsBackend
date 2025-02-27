@@ -32,15 +32,19 @@ public class DishServiceImpl implements DishService {
     public Dish createDish(CreateDishRequestDTO createDishRequestDTO) {
 
         Map<String, String> errors = new TreeMap<>();
+        List<Long> ingredientIds = createDishRequestDTO.getIngredientIds();
+        List<Ingredient> ingredients = ingredientRepository.findAllById(ingredientIds);
 
         if(isDishPresent(createDishRequestDTO.getName())){
             errors.put("DishAlreadyOnDb", "Dish already exists");
         }
 
-        List<Ingredient> ingredients = ingredientRepository.findAllById(createDishRequestDTO.getIngredientIds());
-
         if(ingredients.isEmpty()){
             errors.put("NoIngredientsFound", "No ingredients found");
+        }
+
+        if(ingredients.size() != ingredientIds.size()){
+            errors.put("IngredientNotFound", "Ingredient not found");
         }
 
         if(!errors.isEmpty()){

@@ -3,6 +3,7 @@ package org.elis.rpexternalsbackend.controller;
 import jakarta.validation.Valid;
 import org.elis.rpexternalsbackend.dto.request.CreateAllergenRequestDTO;
 import org.elis.rpexternalsbackend.model.Allergen;
+import org.elis.rpexternalsbackend.model.Ingredient;
 import org.elis.rpexternalsbackend.service.definition.AllergenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,14 @@ public class AllergenController {
         if(allergen != null) return ResponseEntity.ok().build();
         else return ResponseEntity.badRequest().build();
     }
+
+    @PostMapping("/all/allergens/createList")
+    public ResponseEntity<Void> createAllergenList(@RequestBody @Valid List<CreateAllergenRequestDTO> createAllergenRequestDTOList){
+        List<Allergen> allergens = allergenService.createAllergenList(createAllergenRequestDTOList);
+        if(!allergens.isEmpty()) return ResponseEntity.ok().build();
+        else return ResponseEntity.badRequest().build();
+    }
+
 
     @GetMapping("/all/allergens/readAll")
     public ResponseEntity<List<Allergen>> readAllAllergens(){

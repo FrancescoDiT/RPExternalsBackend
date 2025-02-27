@@ -1,6 +1,7 @@
 package org.elis.rpexternalsbackend.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.elis.rpexternalsbackend.model.value.DishType;
@@ -18,6 +19,6 @@ public class CreateDishRequestDTO {
     private String description;
     @NotBlank(message = "Dish type cannot be null")
     private DishType type;
-    @NotBlank(message = "Dish price cannot be null")
+    @NotNull(message = "Dish price cannot be null")
     private List<Long> ingredientIds;
 }
